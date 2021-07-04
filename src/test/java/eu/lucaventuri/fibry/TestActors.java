@@ -1,10 +1,11 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 import eu.lucaventuri.common.Exceptions;
 import eu.lucaventuri.common.Exitable;
 import eu.lucaventuri.common.SystemUtils;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -27,8 +28,11 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import static eu.lucaventuri.common.SystemUtils.sleep;
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 class TestHandler {
     final AtomicInteger numString = new AtomicInteger();

@@ -1,7 +1,5 @@
 package eu.lucaventuri.common;
 
-import eu.lucaventuri.fibry.BatchMergeable;
-
 import java.util.concurrent.TimeUnit;
 
 /** Object that can be merged with another one of th esame type */

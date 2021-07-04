@@ -1,9 +1,9 @@
 package eu.lucaventuri.fibry;
 
+import eu.lucaventuri.collections.PriorityMiniQueue;
+
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-
-import eu.lucaventuri.collections.PriorityMiniQueue;
 
 public interface MiniQueue<T> {
     boolean add (T message);

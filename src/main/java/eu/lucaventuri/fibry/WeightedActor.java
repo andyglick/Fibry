@@ -1,13 +1,9 @@
 package eu.lucaventuri.fibry;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import eu.lucaventuri.common.CanExit;
-import eu.lucaventuri.common.Exitable;
 import eu.lucaventuri.common.Stateful;
+
+import java.util.function.Consumer;
 
 /**
  * Limited actor, that can only deal with messages; this could useful for remote actors or for pipelines.

@@ -1,10 +1,7 @@
 package eu.lucaventuri.fibry;
 
-import eu.lucaventuri.common.Stateful;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**

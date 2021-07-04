@@ -1,9 +1,9 @@
 package eu.lucaventuri.collections;
 
+import eu.lucaventuri.fibry.MiniQueue;
+
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import eu.lucaventuri.fibry.MiniQueue;
 
 /**
  * Priority queue; this could be useful for weighted work-stealing actor pools, because the poison pill could receive

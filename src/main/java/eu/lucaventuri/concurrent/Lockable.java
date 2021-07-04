@@ -1,9 +1,9 @@
 package eu.lucaventuri.concurrent;
 
+import eu.lucaventuri.fibry.ActorSystem;
+
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
-
-import eu.lucaventuri.fibry.ActorSystem;
 
 public interface Lockable {
     interface Unlock extends AutoCloseable {

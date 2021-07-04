@@ -5,7 +5,6 @@ import eu.lucaventuri.common.SystemUtils;
 
 import java.util.AbstractQueue;
 import java.util.Iterator;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;

@@ -4,6 +4,9 @@ import eu.lucaventuri.fibry.fsm.*;
 import org.junit.Assert;
 import org.junit.Test;
 
+import eu.lucaventuri.fibry.fsm.FsmBuilderConsumer;
+import eu.lucaventuri.fibry.fsm.FsmContext;
+
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 

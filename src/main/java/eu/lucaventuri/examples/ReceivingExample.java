@@ -1,7 +1,7 @@
 package eu.lucaventuri.examples;
 
-import eu.lucaventuri.fibry.MessageReceiver;
 import eu.lucaventuri.fibry.ActorSystem;
+import eu.lucaventuri.fibry.MessageReceiver;
 import eu.lucaventuri.fibry.ReceivingActor;
 
 import java.util.concurrent.CompletableFuture;

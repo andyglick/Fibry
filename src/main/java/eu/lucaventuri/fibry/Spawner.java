@@ -1,7 +1,6 @@
 package eu.lucaventuri.fibry;
 
 import eu.lucaventuri.common.CountingExitable;
-import eu.lucaventuri.common.Exitable;
 
 import java.util.function.Consumer;
 import java.util.function.Function;

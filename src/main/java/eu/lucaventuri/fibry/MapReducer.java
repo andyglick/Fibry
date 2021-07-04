@@ -2,7 +2,6 @@ package eu.lucaventuri.fibry;
 
 import eu.lucaventuri.common.Exitable;
 
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 /**

@@ -6,7 +6,6 @@ import eu.lucaventuri.fibry.CustomActor;
 import eu.lucaventuri.fibry.CustomActorWithResult;
 import eu.lucaventuri.fibry.FibryQueue;
 
-import javax.sound.midi.SoundbankResource;
 import java.util.concurrent.ExecutionException;
 
 class ActorInherit extends CustomActor<Object, Void, Void> {

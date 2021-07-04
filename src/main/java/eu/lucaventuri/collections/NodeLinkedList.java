@@ -1,10 +1,8 @@
 package eu.lucaventuri.collections;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * NodeLinkedList that uses Nodes instead of adding values as the Java lists do.

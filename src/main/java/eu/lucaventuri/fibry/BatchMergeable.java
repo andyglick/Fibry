@@ -4,7 +4,9 @@ import eu.lucaventuri.common.Mergeable;
 
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /** Mergeable meant to work for batches */
 public abstract class BatchMergeable implements Mergeable {

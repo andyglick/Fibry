@@ -2,7 +2,6 @@ package eu.lucaventuri.examples.distributed;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 

@@ -1,14 +1,11 @@
 package eu.lucaventuri.common;
 
-//import lombok.extern.slf4j.Slf4j;
-
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-//@Slf4j
 final public class Exceptions {
     private Exceptions() { /* Static only*/ }
 

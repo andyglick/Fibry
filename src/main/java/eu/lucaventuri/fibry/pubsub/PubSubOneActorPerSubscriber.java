@@ -2,7 +2,6 @@ package eu.lucaventuri.fibry.pubsub;
 
 import eu.lucaventuri.fibry.Actor;
 import eu.lucaventuri.fibry.ActorSystem;
-import eu.lucaventuri.fibry.Stereotypes;
 
 import java.util.function.Consumer;
 

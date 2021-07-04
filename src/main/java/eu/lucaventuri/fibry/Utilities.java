@@ -1,14 +1,16 @@
 package eu.lucaventuri.fibry;
 
-import eu.lucaventuri.common.Exceptions;
-
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public final class Utilities {
     private Utilities() { /** Static methods only*/}

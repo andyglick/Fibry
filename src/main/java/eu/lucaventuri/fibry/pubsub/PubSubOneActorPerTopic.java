@@ -1,12 +1,9 @@
 package eu.lucaventuri.fibry.pubsub;
 
-import eu.lucaventuri.fibry.ActorSystem;
 import eu.lucaventuri.fibry.SinkActor;
 import eu.lucaventuri.fibry.Stereotypes;
 
-import javax.swing.*;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 

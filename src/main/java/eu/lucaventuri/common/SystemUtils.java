@@ -1,12 +1,20 @@
 package eu.lucaventuri.common;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.EOFException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
