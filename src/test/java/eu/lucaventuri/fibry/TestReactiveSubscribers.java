@@ -1,13 +1,16 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Test;
+
 import eu.lucaventuri.common.SystemUtils;
-import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PublisherTest implements Flow.Publisher<Integer> {
     private final AtomicInteger numSent = new AtomicInteger();
@@ -48,9 +51,10 @@ class PublisherTest implements Flow.Publisher<Integer> {
     }
 }
 
-public class TestReactiveSubscribers {
+class TestReactiveSubscribers {
+
     @Test
-    public void testReactive() throws InterruptedException {
+    void testReactive() throws InterruptedException {
         final AtomicLong maxQueueSize = new AtomicLong();
         final AtomicLong maxNum = new AtomicLong();
         final AtomicInteger numReceived = new AtomicInteger();
@@ -77,5 +81,7 @@ public class TestReactiveSubscribers {
         pub.subscribe(sub);
 
         latch.await();
+
+        assertTrue(true);
     }
 }

@@ -1,5 +1,8 @@
 package eu.lucaventuri.fibry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -16,6 +19,7 @@ import eu.lucaventuri.fibry.ActorSystem.NamedStrategyActorCreator;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -127,6 +131,10 @@ class MultiTracker<T extends MergeableParallelBatches> {
  * Class providing functions for common use cases
  */
 public class Stereotypes {
+    
+    private static final Logger LOG
+        = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
+    
     private static AtomicBoolean debug = new AtomicBoolean(false);
     private static AtomicInteger defaultHttpBacklog = new AtomicInteger(100);
 
@@ -305,7 +313,7 @@ public class Stereotypes {
                             socket.receive(packet);
                             consumer.accept(packet);
                         } catch (IOException e) {
-                            System.err.println(e);
+                            LOG.error("IOExcpetion occured message is {}", e.getMessage());
                         }
                     }
                 } finally {
@@ -342,7 +350,7 @@ public class Stereotypes {
                             socket.receive(packet);
                             consumer.accept(packet);
                         } catch (IOException e) {
-                            System.err.println(e);
+                            LOG.error("IOException occurred message is {}", e.getMessage());
                         }
                     }
                 } finally {
@@ -621,7 +629,7 @@ public class Stereotypes {
             SinkActorSingleTask<Void> actor = runOnceWithThis(thisActor -> {
                 while (!thisActor.isExiting()) {
                     if (debug.get())
-                        System.out.println("Accepting TCP connections on port " + port);
+                        LOG.info("Accepting TCP connections on port " + port);
                     Optional<ServerSocket> serverSocket = createServerSocketWithTimeout(port, latchSocketCreation, exception, timeoutAcceptance, fromSocketChannel);
 
                     if (serverSocket.isPresent()) {
@@ -630,7 +638,7 @@ public class Stereotypes {
                         SystemUtils.sleep(10); // Slows down a bit in case of continuous exceptions. A circuit breaker would also be an option
                 }
                 if (debug.get())
-                    System.out.println("TCP acceptor actor on port " + port + " shutting down");
+                    LOG.info("TCP acceptor actor on port " + port + " shutting down");
             });
 
             Exceptions.silence(latchSocketCreation::await);
@@ -644,7 +652,7 @@ public class Stereotypes {
             }
 
             if (debug.get())
-                System.out.println("TCP acceptor listening on port " + port);
+                LOG.info("TCP acceptor listening on port " + port);
 
             return actor;
         }
@@ -679,7 +687,7 @@ public class Stereotypes {
                 SystemUtils.close(localSocket);
                 SystemUtils.close(remoteSocket);
                 //if (debugLabel != null)
-                //  System.out.println("Socket closed " + debugLabel);
+                //  LOG.info("Socket closed " + debugLabel);
             });
         }
 

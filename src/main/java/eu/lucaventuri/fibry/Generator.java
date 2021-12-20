@@ -1,5 +1,9 @@
 package eu.lucaventuri.fibry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Spliterator;
@@ -19,6 +23,10 @@ import java.util.stream.StreamSupport;
  * In general, the generator should be able to be iterated multiple times
  */
 public interface Generator<T> extends Iterable<T> {
+
+    static final Logger LOG
+        = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
+    
     enum State {
         /** It is not known yet if there are other elements available */
         WAITING,
@@ -149,14 +157,14 @@ public interface Generator<T> extends Iterable<T> {
                         numElements.incrementAndGet();
                     });
                     latch.countDown();
-                    System.out.println("Counting down at " + numElements.get());
+                   LOG.info("Counting down at " + numElements.get());
 
                     try {
                         latch.await();
                     } catch (InterruptedException e) {
                     }
                     stateRef.set(State.FINISHED);
-                    System.out.println("Finished at " + numElements.get());
+                   LOG.info("Finished at " + numElements.get());
                 });
             }
 

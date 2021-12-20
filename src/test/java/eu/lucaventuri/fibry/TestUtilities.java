@@ -1,17 +1,20 @@
 package eu.lucaventuri.fibry;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestUtilities {
+class TestUtilities {
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
-    public void testFileChange() throws IOException, InterruptedException {
+    void testFileChange() throws IOException, InterruptedException {
         File f = new File("fileTest");
         File f2 = new File("fileTest2");
         CountDownLatch latch = new CountDownLatch(2);
@@ -37,6 +40,5 @@ public class TestUtilities {
             f.delete();
             f2.delete();
         }
-
     }
 }

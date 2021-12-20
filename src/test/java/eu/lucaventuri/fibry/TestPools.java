@@ -1,25 +1,27 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import eu.lucaventuri.common.ConcurrentHashSet;
 import eu.lucaventuri.common.SystemUtils;
-import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestPools {
+class TestPools {
+
     @Test
+    @Disabled
     // FIXME: This test should be more stable
-    public void testFixedSize() throws ExecutionException, InterruptedException {
+    void testFixedSize() throws ExecutionException, InterruptedException {
         Set<Thread> actors = new HashSet<>();
         CountDownLatch latch = new CountDownLatch(3);
         CountDownLatch latch2 = new CountDownLatch(1);
@@ -52,7 +54,7 @@ public class TestPools {
     }
 
     @Test
-    public void testScaling() throws ExecutionException, InterruptedException {
+    void testScaling() throws ExecutionException, InterruptedException {
         int maxActors = 10;
         Set<Thread> actors = new HashSet<>();
         PoolActorLeader<String, Void, String> leader = (PoolActorLeader<String, Void, String>) ActorSystem.anonymous().<String>poolParams(PoolParameters.scaling(3, maxActors, 10, 2, 1, 5), null).<String>newPool(msg -> {
@@ -90,7 +92,7 @@ public class TestPools {
             }
         }
 
-        assertEquals(leader.getQueueLength(), 0);
+        assertEquals(0, leader.getQueueLength());
 
         // Give time to the autoscaling to resize down the pool
         SystemUtils.sleep(50);
@@ -100,12 +102,12 @@ public class TestPools {
     }
 
     @Test
-    public void testAskExit() {
+    void testAskExit() {
         fixedSink(10).askExitAndWait();
     }
 
     @Test
-    public void testPoisonPill() {
+    void testPoisonPill() {
         PoolActorLeader<Object, Void, Object> leader = fixedSink(10);
 
         leader.sendPoisonPill();
@@ -118,7 +120,7 @@ public class TestPools {
     }
 
     @Test
-    public void testFinalizer() {
+    void testFinalizer() {
         AtomicInteger numLeaderFinished = new AtomicInteger();
         AtomicInteger numWorkersFinished = new AtomicInteger();
         AtomicInteger numMessages = new AtomicInteger();
@@ -144,7 +146,7 @@ public class TestPools {
     }
 
     @Test
-    public void testFinalizer2() {
+    void testFinalizer2() {
         AtomicInteger numLeaderFinished = new AtomicInteger();
         AtomicInteger numWorkersFinished = new AtomicInteger();
         AtomicInteger numMessages = new AtomicInteger();
@@ -169,7 +171,7 @@ public class TestPools {
     }
 
     @Test
-    public void testState() {
+    void testState() {
         Set<Double> numbersSeen = ConcurrentHashSet.build();
         AtomicInteger messages = new AtomicInteger();
 
@@ -191,7 +193,7 @@ public class TestPools {
     }
 
     @Test
-    public void testCount() {
+    void testCount() {
         AtomicInteger numMessage = new AtomicInteger();
         Set<Object> actors = ConcurrentHashSet.build();
 
@@ -211,5 +213,4 @@ public class TestPools {
         assertEquals(25, numMessage.get());
         assertEquals(3, actors.size());
     }
-
 }

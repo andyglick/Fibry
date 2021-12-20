@@ -2,6 +2,7 @@ package eu.lucaventuri.examples.distributed;
 
 import eu.lucaventuri.common.SystemUtils;
 import eu.lucaventuri.fibry.ActorSystem;
+import eu.lucaventuri.fibry.distributed.JacksonSerDeser;
 import eu.lucaventuri.fibry.distributed.StringSerDeser;
 import eu.lucaventuri.fibry.distributed.TcpChannel;
 
@@ -11,9 +12,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class Alice {
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
         int proxy1Port = 9801;
-        //var ser = new JacksonSerDeser<String, String>(String.class);
+//        var jacksonSerialized = new JacksonSerDeser<String, String>(String.class);
         var ser = StringSerDeser.INSTANCE;
 
         System.out.println("***** Alice UP");

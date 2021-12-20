@@ -1,22 +1,24 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Test;
+
 import eu.lucaventuri.common.Exceptions;
 import eu.lucaventuri.fibry.receipts.ImmutableReceipt;
 import eu.lucaventuri.fibry.receipts.ReceiptFactory;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestReceipts {
+
+class TestReceipts {
     final ReceiptFactory factory = ReceiptFactory.fromMap();
 
     @Test
-    public void testAutoComplete() throws ExecutionException, InterruptedException, IOException {
+    void testAutoComplete() throws ExecutionException, InterruptedException, IOException {
         final Actor<String, String, Void> actor = ActorSystem.anonymous().newActorWithReturn((Function<String, String>) String::toUpperCase);
         assertEquals("ABC", actor.sendMessageReturn("abc").get());
 
@@ -29,7 +31,7 @@ public class TestReceipts {
     }
 
     @Test
-    public void testProgress() throws ExecutionException, InterruptedException, IOException {
+    void testProgress() throws ExecutionException, InterruptedException, IOException {
         var latchLogic = new CountDownLatch(1);
         var latchWaitCaller = new CountDownLatch(1);
         var message = "xyx";

@@ -1,14 +1,17 @@
 package eu.lucaventuri.fibry;
 
-import eu.lucaventuri.common.Exceptions;
+import org.junit.jupiter.api.Test;
+
 import eu.lucaventuri.common.SystemUtils;
 import eu.lucaventuri.fibry.pubsub.PubSub;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 public class TestPubSub {
     @Test

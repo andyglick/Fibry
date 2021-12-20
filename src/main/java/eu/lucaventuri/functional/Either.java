@@ -5,57 +5,50 @@ import eu.lucaventuri.common.Exceptions;
 
 import java.util.Optional;
 
-/** Functional Either, containing or one type or another */
-public class Either<L, R> {
-    private final L left;
-    private final R right;
-
-    private Either(L left, R right) {
-        this.left = left;
-        this.right = right;
-    }
+/**
+ * Functional Either, containing or one type or another
+ */
+public record Either<L, R>(L left, R right) {
 
     public static <L, R> Either<L, R> left(L value) {
         Exceptions.assertAndThrow(value != null, "Left value is null!");
 
-        return new Either<L, R>(value, null);
+        return new Either<>(value, null);
     }
 
     public static <L, R> Either<L, R> right(R value) {
         Exceptions.assertAndThrow(value != null, "Right value is null!");
 
-        return new Either<L, R>(null, value);
+        return new Either<>(null, value);
     }
 
+    @SuppressWarnings("unused")
     public boolean isLeft() {
         return left != null;
     }
 
+    @SuppressWarnings("unused")
     public boolean isRight() {
         return right != null;
     }
 
-    public L left() {
-        return left;
-    }
-
-    public R right() {
-        return right;
-    }
-
+    @SuppressWarnings("unused")
     public Optional<L> leftOpt() {
         return Optional.ofNullable(left);
     }
 
+    @SuppressWarnings("unused")
     public Optional<R> rightOpt() {
         return Optional.ofNullable(right);
     }
 
+    @SuppressWarnings("unused")
     public <E extends Throwable> void ifLeft(ConsumerEx<L, E> consumer) throws E {
         if (left != null)
             consumer.accept(left);
     }
 
+    @SuppressWarnings("unused")
     public <E extends Throwable> void ifRight(ConsumerEx<R, E> consumer) throws E {
         if (right != null)
             consumer.accept(right);

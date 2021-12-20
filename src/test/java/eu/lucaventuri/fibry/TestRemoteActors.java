@@ -1,10 +1,17 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import com.sun.net.httpserver.HttpExchange;
+
 import eu.lucaventuri.common.Exceptions;
-import eu.lucaventuri.fibry.distributed.*;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import eu.lucaventuri.fibry.distributed.HttpChannel;
+import eu.lucaventuri.fibry.distributed.JacksonSerDeser;
+import eu.lucaventuri.fibry.distributed.JavaSerializationSerDeser;
+import eu.lucaventuri.fibry.distributed.StringSerDeser;
+import eu.lucaventuri.fibry.distributed.TcpChannel;
+import eu.lucaventuri.fibry.distributed.TcpReceiver;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,7 +20,12 @@ import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Base64;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class User implements Serializable {
     public String name;
@@ -57,9 +69,10 @@ class PhoneNumber implements Serializable {
     }
 }
 
-@Test
-public class TestRemoteActors {
-    public void testHttpNoReturn() throws IOException, InterruptedException {
+class TestRemoteActors {
+
+    @Test
+    void testHttpNoReturn() throws IOException, InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 19001;
 
@@ -72,15 +85,18 @@ public class TestRemoteActors {
         actor.sendMessage("Test");
 
         latch.await();
+
+        assertTrue(true);
     }
 
-    public void testHttpWithReturnGET() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testHttpWithReturnGET() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 19002;
 
         Stereotypes.def().embeddedHttpServer(port, (HttpExchange ex) -> {
             latch.countDown();
-            Assert.assertEquals("GET", ex.getRequestMethod());
+            assertEquals("GET", ex.getRequestMethod());
 
             return ex.getRequestURI().getQuery();
         });
@@ -90,16 +106,17 @@ public class TestRemoteActors {
 
         latch.await();
         System.out.println(result.get());
-        Assert.assertEquals("actorName=actor2&type=java.lang.String&waitResult=true&message=Test2", result.get());
+        assertEquals("actorName=actor2&type=java.lang.String&waitResult=true&message=Test2", result.get());
     }
 
-    public void testHttpWithReturnPOST() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testHttpWithReturnPOST() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 19003;
 
         Stereotypes.def().embeddedHttpServer(port, (HttpExchange ex) -> {
             latch.countDown();
-            Assert.assertEquals("POST", ex.getRequestMethod());
+            assertEquals("POST", ex.getRequestMethod());
 
             return Exceptions.silence(() -> new String(ex.getRequestBody().readAllBytes()), "Error!");
         });
@@ -109,16 +126,17 @@ public class TestRemoteActors {
 
         latch.await();
         System.out.println(result.get());
-        Assert.assertEquals(result.get(), "Test3");
+        assertEquals("Test3",result.get());
     }
 
-    public void testHttpWithReturnPUT() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testHttpWithReturnPUT() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 19004;
 
         Stereotypes.def().embeddedHttpServer(port, (HttpExchange ex) -> {
             latch.countDown();
-            Assert.assertEquals("PUT", ex.getRequestMethod());
+            assertEquals("PUT", ex.getRequestMethod());
 
             return Exceptions.silence(() -> new String(ex.getRequestBody().readAllBytes()), "Error!");
         });
@@ -128,10 +146,11 @@ public class TestRemoteActors {
 
         latch.await();
         System.out.println(result.get());
-        Assert.assertEquals(result.get(), "Test4");
+        assertEquals("Test4", result.get());
     }
 
-    public void testHttpWithReturnJackson() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testHttpWithReturnJackson() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 19005;
 
@@ -149,10 +168,11 @@ public class TestRemoteActors {
 
         latch.await(1, TimeUnit.SECONDS);
         System.out.println(result.get());
-        Assert.assertEquals(phone, result.get());
+        assertEquals(phone, result.get());
     }
 
-    public void testHttpWithReturnJavaSerialization() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testHttpWithReturnJavaSerialization() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 19006;
 
@@ -177,11 +197,11 @@ public class TestRemoteActors {
 
         latch.await(1, TimeUnit.SECONDS);
         System.out.println(result.get());
-        Assert.assertEquals(phone, result.get());
+        assertEquals(phone, result.get());
     }
 
-
-    public void testSerializer() {
+    @Test
+    void testSerializer() {
         var ser = new JacksonSerDeser<String, String>(String.class);
         var serialized = ser.serializeToString("test1");
 
@@ -192,9 +212,12 @@ public class TestRemoteActors {
         var userSerialized = serUser.serializeToString(new User("User1"));
         System.out.println(userSerialized);
         System.out.println(serUser.deserializeString(userSerialized));
+
+        assertTrue(true);
     }
 
-    public void testTcpNoReturn() throws IOException, InterruptedException {
+    @Test
+    void testTcpNoReturn() throws IOException, InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 20001;
         var ser = new JacksonSerDeser<String, String>(String.class);
@@ -203,7 +226,7 @@ public class TestRemoteActors {
         TcpReceiver.startTcpReceiverProxy(port, "abc", ser, ser, false);
 
         ActorSystem.named("tcpActor1").newActor(str -> {
-            Assert.assertEquals(str, "test1");
+            assertEquals("test1", str);
 
             latch.countDown();
         });
@@ -217,7 +240,8 @@ public class TestRemoteActors {
         latch.await();
     }
 
-    public void testTcpAnswerProxyType() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testTcpAnswerProxyType() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 20002;
         var ser = new JacksonSerDeser<String, String>(String.class);
@@ -226,7 +250,7 @@ public class TestRemoteActors {
         TcpReceiver.startTcpReceiverProxy(port, "abc", ser, ser, false);
 
         ActorSystem.named("tcpActor2").newActorWithReturn(str -> {
-            Assert.assertEquals(str, "test2");
+            assertEquals("test2",str);
 
             latch.countDown();
 
@@ -241,10 +265,11 @@ public class TestRemoteActors {
 
         latch.await();
 
-        Assert.assertEquals("TEST2", ret.get());
+        assertEquals("TEST2", ret.get());
     }
 
-    public void testTcpAnswerDirectType() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testTcpAnswerDirectType() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 20022;
         var ser = new JacksonSerDeser<String, String>(String.class);
@@ -253,7 +278,7 @@ public class TestRemoteActors {
         TcpReceiver.startTcpReceiverDirectActor(port, "abc", ser, ser, false, "tcpActor2-d-alias");
 
         ActorSystem.named("tcpActor2-d-alias").newActorWithReturn(str -> {
-            Assert.assertEquals(str, "test2");
+            assertEquals("test2", str);
 
             latch.countDown();
 
@@ -268,10 +293,11 @@ public class TestRemoteActors {
 
         latch.await();
 
-        Assert.assertEquals("TEST2", ret.get());
+        assertEquals("TEST2", ret.get());
     }
 
-    public void testTcpException() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testTcpException() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 20003;
         var ser = new JacksonSerDeser<Integer, Integer>(Integer.class);
@@ -279,7 +305,7 @@ public class TestRemoteActors {
         TcpReceiver.startTcpReceiverProxy(port, "abc", ser, ser, false);
 
         ActorSystem.named("tcpActor3").newActorWithReturn((Integer n) -> {
-            Assert.assertEquals(n, Integer.valueOf(11));
+            assertEquals(n, Integer.valueOf(11));
 
             latch.countDown();
 
@@ -295,14 +321,15 @@ public class TestRemoteActors {
 
         try {
             ret.get();
-            Assert.fail();
+            Assertions.fail();
         } catch(Throwable t) {
             System.err.println("Expected exception: " + t);
             System.err.println("Cause exception: " + t.getCause());
         }
     }
 
-    public void testTcpAnswerMix() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testTcpAnswerMix() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 20004;
         var serMix = new JacksonSerDeser<String, Integer>(Integer.class);
@@ -311,7 +338,7 @@ public class TestRemoteActors {
         TcpReceiver.startTcpReceiverProxy(port, "abc", serMix2, serMix2, false);
 
         ActorSystem.named("tcpActor4").newActorWithReturn(str -> {
-            Assert.assertEquals(str, "test2");
+            assertEquals("test2", str);
 
             latch.countDown();
 
@@ -325,10 +352,11 @@ public class TestRemoteActors {
 
         latch.await();
 
-        Assert.assertEquals(Integer.valueOf(5), ret.get());
+        assertEquals(Integer.valueOf(5), ret.get());
     }
 
-    public void testTcpConnectionDrop() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testTcpConnectionDrop() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latchReceived = new CountDownLatch(1);
         CountDownLatch latchConnectionDropped = new CountDownLatch(1);
         int port = 20005;
@@ -340,7 +368,7 @@ public class TestRemoteActors {
         TcpReceiver.startTcpReceiverProxy(port, "abc", serMix2, serMix2, false);
 
         ActorSystem.named(actorName).newActorWithReturn(str -> {
-            Assert.assertEquals(str, "test2");
+            assertEquals("test2", str);
 
             latchReceived.countDown();
             try {
@@ -366,10 +394,11 @@ public class TestRemoteActors {
         var value = ret.get();
 
         System.out.println("Received value: " + value);
-        Assert.assertEquals(Integer.valueOf(5), value);
+        assertEquals(Integer.valueOf(5), value);
     }
 
-    public void testTcpAliases() throws IOException, InterruptedException, ExecutionException {
+    @Test
+    void testTcpAliases() throws IOException, InterruptedException, ExecutionException {
         CountDownLatch latch = new CountDownLatch(1);
         int port = 20006;
         var serMix = new JacksonSerDeser<String, Integer>(Integer.class);
@@ -382,7 +411,7 @@ public class TestRemoteActors {
         System.out.println(2);
         ActorSystem.named(actorName).newActorWithReturn(str -> {
             System.out.println(6);
-            Assert.assertEquals(str, "test2");
+            assertEquals("test2", str);
 
             latch.countDown();
 
@@ -392,7 +421,7 @@ public class TestRemoteActors {
         System.out.println(3);
         ActorSystem.setAliasResolver(name -> name.replace("alias-", ""));
 
-        var ch = new TcpChannel<String, Integer>(new InetSocketAddress(port), "abc", serMix, serMix, true, "chAnswerMix");
+        var ch = new TcpChannel<>(new InetSocketAddress(port), "abc", serMix, serMix, true, "chAnswerMix");
         var actor = ActorSystem.anonymous().<String, Integer>newRemoteActorWithReturn("alias-" + actorName, ch, serMix);
 
         System.out.println(4);
@@ -401,6 +430,6 @@ public class TestRemoteActors {
         latch.await();
 
         System.out.println(5);
-        Assert.assertEquals(Integer.valueOf(5), ret.get());
+        assertEquals(Integer.valueOf(5), ret.get());
     }
 }

@@ -1,18 +1,23 @@
 package eu.lucaventuri.collections;
 
+import org.junit.jupiter.api.Test;
+
 import eu.lucaventuri.fibry.MiniQueue;
 import eu.lucaventuri.fibry.Stereotypes;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestMiniQueue {
+class TestMiniQueue {
+
     @Test
-    public void testBlocking() throws InterruptedException {
+    void testBlocking() throws InterruptedException {
         MiniQueue<String> queue = MiniQueue.blocking();
 
         queue.add("1");
@@ -27,7 +32,7 @@ public class TestMiniQueue {
     }
 
     @Test
-    public void testDropping() throws InterruptedException {
+    void testDropping() throws InterruptedException {
         MiniQueue<String> queue = MiniQueue.dropping();
 
         queue.add("1");
@@ -46,7 +51,7 @@ public class TestMiniQueue {
     }
 
     @Test
-    public void random() throws InterruptedException {
+    void random() throws InterruptedException {
         var list = List.of(1,2,3,4,5,6,7,8,9,10);
 
         PriorityMiniQueue<Integer> queue = MiniQueue.priority();
@@ -68,7 +73,7 @@ public class TestMiniQueue {
     }
 
     @Test
-    public void randomPoison() throws InterruptedException {
+    void randomPoison() throws InterruptedException {
         final int POISON_PILL = -1;
         PriorityMiniQueue<Integer> queue = MiniQueue.priority();
         queue.add(1);

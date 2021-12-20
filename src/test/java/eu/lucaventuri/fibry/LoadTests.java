@@ -1,9 +1,8 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Test;
+
 import eu.lucaventuri.common.HttpUtil;
-import eu.lucaventuri.common.SystemUtils;
-import org.junit.Assert;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,12 +13,15 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LoadTests {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class LoadTests {
+
     @Test
-    public void testHttp() throws IOException, URISyntaxException, InterruptedException {
+    void testHttp() throws IOException, URISyntaxException, InterruptedException {
         boolean fibersAvailable = ActorUtils.areFibersAvailable();
 
-        System.out.println("Fibers: " + fibersAvailable);
+        System.out.println("ActorUtils.areFibersAvailable() " + fibersAvailable);
 
         var num = new AtomicInteger();
         int port = 10001;
@@ -63,7 +65,7 @@ public class LoadTests {
 
         latch.await();
 
-        Assert.assertEquals(num.get(), numThreads*numCalls);
+        assertEquals(numThreads*numCalls, num.get());
 
         System.out.println("Number of requests:        " + num.get());
     }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            

@@ -1,14 +1,14 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Test;
+
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberBlackboxVerification;
-import org.testng.annotations.Test;
 
 import java.util.concurrent.Flow;
 
-
-@Test
 public class TestReactiveSubscribersBlackBox extends FlowSubscriberBlackboxVerification<Integer> {
+
     public TestReactiveSubscribersBlackBox() {
         super(new TestEnvironment());
     }

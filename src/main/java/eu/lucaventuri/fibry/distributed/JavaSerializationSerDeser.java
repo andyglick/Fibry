@@ -15,10 +15,7 @@ import java.io.ObjectOutputStream;
 public class JavaSerializationSerDeser<T, R> implements ChannelSerDeser<T, R> {
     @Override
     public byte[] serialize(T object) {
-        try (
-                var buf = new ByteArrayOutputStream();
-                var os = new ObjectOutputStream(buf)) {
-
+        try (var buf = new ByteArrayOutputStream(); var os = new ObjectOutputStream(buf)) {
             os.writeObject(object);
             return buf.toByteArray();
         } catch (IOException e) {
@@ -33,15 +30,11 @@ public class JavaSerializationSerDeser<T, R> implements ChannelSerDeser<T, R> {
 
     @Override
     public R deserialize(byte[] object) {
-        try (
-                var buf = new ByteArrayInputStream(object);
-                var is = new ObjectInputStream(buf)) {
-
+        try (var buf = new ByteArrayInputStream(object); var is = new ObjectInputStream(buf)) {
             return (R) is.readObject();
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override

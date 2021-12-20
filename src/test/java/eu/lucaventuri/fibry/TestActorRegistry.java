@@ -1,15 +1,19 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Test;
+
 import eu.lucaventuri.common.SystemUtils;
 import eu.lucaventuri.fibry.distributed.ActorRegistry;
-import junit.framework.TestCase;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.CountDownLatch;
 
-public class TestActorRegistry extends TestCase {
-    public void testRegistryAndDeregister() throws IOException, InterruptedException {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class TestActorRegistry {
+    @Test
+    void testRegistryAndDeregister() throws IOException, InterruptedException {
         CountDownLatch latchRegister = new CountDownLatch(1);
         CountDownLatch latchDeregister = new CountDownLatch(1);
         InetAddress address = InetAddress.getByName("224.0.0.0");

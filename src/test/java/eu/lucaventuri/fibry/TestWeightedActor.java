@@ -1,34 +1,43 @@
 package eu.lucaventuri.fibry;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
 
 import eu.lucaventuri.common.SystemUtils;
-import junit.framework.TestCase;
 
-public class TestWeightedActor extends TestCase {
+import java.util.concurrent.atomic.AtomicInteger;
 
-    public void testNormalPool() {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
+class TestWeightedActor {
+
+    @Test
+    void testNormalPool() {
         AtomicInteger num = new AtomicInteger();
         AtomicInteger max = new AtomicInteger();
         int numThreads = 10;
 
-        var leader = ActorSystem.anonymous().poolParams(PoolParameters.fixedSize(numThreads), null).newPool(msg-> {
+        var leader
+            = ActorSystem.anonymous()
+            .poolParams(PoolParameters.fixedSize(numThreads), null)
+            .newPool(msg-> {
             int n = num.incrementAndGet();
             max.updateAndGet( m -> Math.max(m, n));
             SystemUtils.sleep(10);
             num.decrementAndGet();
         });
 
-        for(int i=0; i<50; i++)
+        for(int i = 0; i < 50; i++)
             leader.sendMessage(i);
 
         leader.sendPoisonPill();
         leader.waitForExit();
 
-        assertEquals(max.get(), 10);
+        assertEquals(10, max.get());
     }
 
-    public void testWeightedPoolWeight1() {
+    @Test
+    void testWeightedPoolWeight1() {
         AtomicInteger num = new AtomicInteger();
         AtomicInteger max = new AtomicInteger();
         int numThreads = 10;
@@ -46,15 +55,17 @@ public class TestWeightedActor extends TestCase {
         leader.sendPoisonPill();
         leader.waitForExit();
 
-        assertEquals(max.get(), 10);
+        assertEquals(10, max.get());
     }
 
-    public void testWeightedPoolWeight2() {
+    @Test
+    void testWeightedPoolWeight2() {
         AtomicInteger num = new AtomicInteger();
         AtomicInteger max = new AtomicInteger();
         int numThreads = 10;
 
-        var leader = ActorSystem.anonymous().poolParams(PoolParameters.fixedSize(numThreads), null).newWeightedPool(msg-> {
+        var leader= ActorSystem.anonymous().poolParams(PoolParameters.fixedSize(numThreads), null)
+            .newWeightedPool(msg-> {
             int n = num.incrementAndGet();
             max.updateAndGet( m -> Math.max(m, n));
             SystemUtils.sleep(10);
@@ -67,6 +78,6 @@ public class TestWeightedActor extends TestCase {
         leader.sendPoisonPill();
         leader.waitForExit();
 
-        assertEquals(max.get(), 3);
+        assertEquals(3, max.get());
     }
 }

@@ -1,16 +1,25 @@
 package eu.lucaventuri.fibry;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class TestGenerators extends TestCase {
-    public void testGeneratorRndom() {
+import static org.junit.Assert.assertEquals;
+
+class TestGenerators {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
+    @Test
+    public void testGeneratorRandom() {
         Iterable<Integer> gen = Generator.fromProducer(yielder -> {
             for (int i = 0; i <= 10; i++) {
                 if (Math.random() < 0.5)
@@ -18,10 +27,12 @@ public class TestGenerators extends TestCase {
             }
         }, 5, true);
 
+       LOG.info("TestGenerators::testGeneratorRandom has produced an Iterable of Integers");
         for(int n: gen)
-            System.out.println(n);
+           LOG.info("  " + n);
     }
 
+    @Test
     public void testGeneratorSmall() {
         testGenerator(1, 10, false);
         testGenerator(5, 10, false);
@@ -31,6 +42,7 @@ public class TestGenerators extends TestCase {
         testGenerator(100, 100_000, false);
     }
 
+    @Test
     public void testGeneratorMultipleTimes() {
         int num = 50;
 
@@ -44,35 +56,42 @@ public class TestGenerators extends TestCase {
         testResult(gen);
     }
 
+    @Test
     public void testGenerator100K_1() {
         testGenerator(1, 100_000, false);
     }
 
+    @Test
     public void testGenerator100K_10() {
         testGenerator(1, 100_000, false);
     }
 
+    @Test
     public void testGenerator100K_100() {
         testGenerator(100, 100_000, false);
     }
 
+    @Test
     public void testGenerator1M_100() {
         testGenerator(100, 1_000_000, false);
     }
 
+    @Test
     public void testGenerator1M_100_max() {
         testGenerator(100, 1_000_000, true);
     }
 
+    @Test
     public void testStream() {
         AtomicLong l = new AtomicLong();
         AtomicInteger pos = new AtomicInteger();
 
         Stream.generate(pos::incrementAndGet).limit(1000_000).forEach(l::addAndGet);
 
-        System.out.println(l.get());
+       LOG.info("the value of the long is {}", l.get());
     }
 
+    @Test
     public void testToStream() {
         int num = 100_000;
         Generator<Integer> gen = Generator.fromProducer(yielder -> {
@@ -107,33 +126,39 @@ public class TestGenerators extends TestCase {
         assertEquals(n1.get(), n2.get());
     }
 
+    @Test
     public void testParallelGenerator1M_100_8() {
         testParallelGenerators(1000, 125_000, 8, false);
     }
 
+    @Test
     public void testParallelGenerator1M_100_8_MAX() {
         testParallelGenerators(1000, 125_000, 8, true);
     }
 
+    @Test
     public void testAdvancedGeneratorSmall() {
         testAdvancedGenerator(1, 10, false);
         testAdvancedGenerator(5, 10, false);
         testAdvancedGenerator(20, 10, false);
     }
 
+    @Test
     public void testAdvancedGeneratorNonEmptyError() throws InterruptedException {
-        testForErrors(() -> testAdvancedGeneratorNonEmpty(1, 5));
+        hasAnyErrors(() -> testAdvancedGeneratorNonEmpty(1, 5));
     }
 
+    @Test
     public void testAdvancedGeneratorError() throws InterruptedException {
-        testForErrors(() -> testAdvancedGenerator(1, 5, false));
+        hasAnyErrors(() -> testAdvancedGenerator(1, 5, false));
     }
 
+    @Test
     public void testGeneratorError() throws InterruptedException {
-        testForErrors(() -> testGenerator(1, 5, false));
+        hasAnyErrors(() -> testGenerator(1, 5, false));
     }
 
-    public void testForErrors(Runnable run) throws InterruptedException {
+    public void hasAnyErrors(Runnable run) throws InterruptedException {
         int n = 50;
         CountDownLatch latch = new CountDownLatch(n);
 
@@ -148,23 +173,27 @@ public class TestGenerators extends TestCase {
         latch.await();
     }
 
+    @Test
     public void testAdvancedGenerator1M_1() {
         testAdvancedGenerator(1, 1_000_000, false);
     }
 
+    @Test
     public void testAdvancedGenerator1M_1_MAX() {
         testAdvancedGenerator(1, 1_000_000, true);
     }
 
-
+    @Test
     public void testAdvancedGenerator1M_100() {
         testAdvancedGenerator(100, 1_000_000, false);
     }
 
+    @Test
     public void testAdvancedGenerator1M_100_MAX() {
         testAdvancedGenerator(100, 1_000_000, true);
     }
 
+    @Test
     public void testAdvancedGeneratorNonEmpty1M_100() {
         testAdvancedGeneratorNonEmpty(100, 1_000_000);
     }

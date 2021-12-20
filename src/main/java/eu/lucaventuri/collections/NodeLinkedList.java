@@ -8,8 +8,9 @@ import java.util.List;
  * NodeLinkedList that uses Nodes instead of adding values as the Java lists do.
  * As a result, we can add and remove a specific node in O(1), which is our goal.
  * This class is not thread safe, and it is intended to be used from a single thread.
- * In particular it is used as part of the "receive" functionality, so it is called by the actor, which, by definition, runs on a single thread/fiber.
- * Thread safety is achieved using a blocking queue before that.
+ * In particular it is used as part of the "receive" functionality, so it is called
+ * by the actor, which, by definition, runs on a single thread/fiber. Thread safety
+ * is achieved using a blocking queue before that.
  */
 public class NodeLinkedList<T> implements Iterable<T> {
     private Node<T> head;

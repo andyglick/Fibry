@@ -1,14 +1,14 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Test;
+
 import org.reactivestreams.tck.TestEnvironment;
 import org.reactivestreams.tck.flow.FlowSubscriberWhiteboxVerification;
-import org.testng.annotations.Test;
 
 import java.util.concurrent.Flow;
 
-
-@Test
 public class TestReactiveSubscribersWhiteBox extends FlowSubscriberWhiteboxVerification<Integer> {
+
     public TestReactiveSubscribersWhiteBox() {
         super(new TestEnvironment());
     }

@@ -1,5 +1,8 @@
 package eu.lucaventuri.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
@@ -25,6 +28,10 @@ import java.util.stream.Stream.Builder;
  * @author Luca Venturi
  */
 public final class SystemUtils {
+    
+    private static final Logger LOG
+        = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
+    
     private static final boolean assertsEnabled;
     public static final MethodHandles.Lookup publicLookup = MethodHandles.publicLookup();;
 
@@ -143,7 +150,7 @@ public final class SystemUtils {
         try {
             clo.close();
         } catch (Exception e) {
-            System.err.println(e);
+            LOG.error("Exception occurred message is {}", e.getMessage());
         }
     }
 
@@ -159,7 +166,7 @@ public final class SystemUtils {
         try {
             clo.close();
         } catch (IOException e) {
-            System.err.println(e);
+            LOG.error("IOException occurred message is {}", e.getMessage());
         }
     }
 
@@ -217,7 +224,7 @@ public final class SystemUtils {
         long times[] = new long[numRunning];
 
         for (int i = 0; i < numRunning; i++) {
-            System.out.println("Round " + (i + 1) + " of " + numRunning);
+            LOG.info("Round " + (i + 1) + " of " + numRunning);
             times[i] = timeEx(run);
 
             if (cleanup != null)
@@ -234,7 +241,7 @@ public final class SystemUtils {
 
         long time = System.currentTimeMillis() - start;
 
-        System.out.println(description + " : " + time + " ms");
+        LOG.info(description + " : " + time + " ms");
 
         return time;
     }
@@ -246,7 +253,7 @@ public final class SystemUtils {
 
         long time = System.currentTimeMillis() - start;
 
-        System.out.println(description + " : " + time + " ms");
+        LOG.info(description + " : " + time + " ms");
 
         return time;
     }
@@ -260,14 +267,14 @@ public final class SystemUtils {
             while ((read = is.read(buffer, 0, buffer.length)) >= 0) {
                 os.write(buffer, 0, read);
                 if (echoLabel != null && transferred < 128)
-                    System.out.println(echoLabel + ": " + new String(buffer, 0, (int) Math.min(read - transferred, 128)));
+                    LOG.info(echoLabel + ": " + new String(buffer, 0, (int) Math.min(read - transferred, 128)));
                 transferred += read;
             }
 
             return transferred;
         } finally {
             if (echoLabel != null)
-                System.out.println("Transferred " + echoLabel + " " + transferred + " bytes");
+                LOG.info("Transferred " + echoLabel + " " + transferred + " bytes");
         }
     }
 

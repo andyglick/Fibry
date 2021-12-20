@@ -1,9 +1,10 @@
 package eu.lucaventuri.collections;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import eu.lucaventuri.common.Exceptions;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -12,27 +13,31 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestNodeLinkedList {
+class TestNodeLinkedList {
     private final AtomicInteger numInserted = new AtomicInteger();
     private final AtomicInteger numDeleted = new AtomicInteger();
 
-    @Before
+    @BeforeEach
     public void setup() {
         numInserted.set(0);
         numDeleted.set(0);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         NodeLinkedList list = new NodeLinkedList();
 
         assertEmpty(list);
     }
 
     @Test
-    public void testOne() {
+    void testOne() {
         NodeLinkedList<String> list = new NodeLinkedList<>();
 
         list.addToTail("abc");
@@ -56,12 +61,12 @@ public class TestNodeLinkedList {
         assertEquals(0, list.asListFromTail().size());
         assertNull(list.peekHead());
         assertNull(list.peekTail());
-
         assertFalse(list.iterator().hasNext());
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @Test
-    public void testTwo() {
+    void testTwo() {
         NodeLinkedList<String> list = new NodeLinkedList<>();
 
         list.addToTail("A");
@@ -92,8 +97,9 @@ public class TestNodeLinkedList {
         assert1Node(list, "C");
     }
 
+    @SuppressWarnings("UnusedAssignment")
     @Test
-    public void testThree() {
+    void testThree() {
         NodeLinkedList<String> list = new NodeLinkedList<>();
 
         list.addToTail("A");
@@ -113,7 +119,6 @@ public class TestNodeLinkedList {
 
         list.removeHead();
         assertEmpty(list);
-
 
         NodeLinkedList.Node<String> n1 = list.addToTail("A");
         assert1Node(list, "A");
@@ -141,7 +146,7 @@ public class TestNodeLinkedList {
     }
 
     @Test
-    public void testSingleInsertFromEmpty() throws InterruptedException {
+    void testSingleInsertFromEmpty() throws InterruptedException {
         NodeLinkedList<Integer> list = new NodeLinkedList<>();
 
         insert(list, 1, 0, 100_000).await();
@@ -150,7 +155,7 @@ public class TestNodeLinkedList {
     }
 
     @Test
-    public void testSingleInsertFromSomething() throws InterruptedException {
+    void testSingleInsertFromSomething() throws InterruptedException {
         NodeLinkedList<Integer> list = new NodeLinkedList<>();
 
         list.addToTail(-1);
@@ -162,8 +167,8 @@ public class TestNodeLinkedList {
     }
 
     @Test
-    @Ignore
-    public void testMultiInsertFromEmpty() throws InterruptedException {
+    @Disabled
+    void testMultiInsertFromEmpty() throws InterruptedException {
         NodeLinkedList<Integer> list = new NodeLinkedList<>();
 
         insert(list, 100, 0, 1000).await();
@@ -172,8 +177,8 @@ public class TestNodeLinkedList {
     }
 
     @Test
-    @Ignore
-    public void testMultiInsertFromSomething() throws InterruptedException {
+    @Disabled
+    void testMultiInsertFromSomething() throws InterruptedException {
         NodeLinkedList<Integer> list = new NodeLinkedList<>();
 
         list.addToTail(-1);
@@ -185,8 +190,8 @@ public class TestNodeLinkedList {
     }
 
     @Test
-    @Ignore
-    public void testMultiInsertThenRemoveHead() throws InterruptedException {
+    @Disabled
+    void testMultiInsertThenRemoveHead() throws InterruptedException {
         NodeLinkedList<Integer> list = new NodeLinkedList<>();
 
         insert(list, 100, 0, 1000).await();
@@ -196,8 +201,8 @@ public class TestNodeLinkedList {
     }
 
     @Test
-    @Ignore
-    public void testMultiInsertAndRemoveHead() throws InterruptedException {
+    @Disabled
+    void testMultiInsertAndRemoveHead() throws InterruptedException {
         NodeLinkedList<Integer> list = new NodeLinkedList<>();
         AtomicBoolean exit = new AtomicBoolean();
 
