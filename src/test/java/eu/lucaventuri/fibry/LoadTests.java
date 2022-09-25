@@ -1,5 +1,6 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import eu.lucaventuri.common.HttpUtil;
@@ -17,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LoadTests {
 
-    @Test
+  @Disabled
+  @Test
     void testHttp() throws IOException, URISyntaxException, InterruptedException {
         boolean fibersAvailable = ActorUtils.areFibersAvailable();
 

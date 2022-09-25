@@ -82,6 +82,7 @@ class M extends BatchMergeable implements MergeableParallelBatches {
     }
 }
 
+@Disabled
 public class TestStereotypes {
     
     private static final Logger LOG 

@@ -1,5 +1,6 @@
 package eu.lucaventuri.fibry;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -10,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Disabled
 class TestUtilities {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
