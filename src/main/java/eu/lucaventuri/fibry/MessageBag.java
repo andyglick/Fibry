@@ -15,6 +15,7 @@ import java.util.function.Predicate;
  * To improve performance, a lock-less blocking queue "with nodes" should be implemented to get both the retrieval behaviors from a single object
  */
 public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageReceiver<T>, MiniQueue<T> {
+    public static final long LONG_TIMEOUT = TimeUnit.DAYS.toMillis(365);
     private final MiniQueue<T> queue;
     private final ClassifiedMap map = new ClassifiedMap();
     private final Function<T, CONV> converter;
@@ -29,19 +30,34 @@ public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageRece
         this.converter = null;
     }
 
-    public T readMessage() {
+    public T readMessage(long timeoutMs) {
         if (map.isEmpty())
-            return retrieveFromQueue();
+            return retrieveFromQueue(System.currentTimeMillis(), timeoutMs);
 
-        return map.removeHead();
+        if (converter != null)
+            return map.removeHeadConverted(converter);
+        else
+            return map.removeHead();
     }
 
-    private T retrieveFromQueue() {
+    public T readMessage() {
+        return readMessage(LONG_TIMEOUT);
+    }
+
+    private T retrieveFromQueue(long startTime, long timeoutMs) {
+        long timeout = timeoutMs;
+
         while (true) {
             try {
-                return queue.take();
+                return queue.poll(timeout, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 SystemUtils.sleep(0);
+                long now = System.currentTimeMillis();
+
+                if (now >= startTime + timeoutMs)
+                    return null;
+
+                timeout = startTime + timeoutMs - now;
             }
         }
     }
@@ -51,13 +67,17 @@ public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageRece
      * This method can be slow, so it should be used with care, on actors that process a single request and that are not supposed to receive many messages.
      * Please consider using sendMessageReturn() if appropriate.
      */
-    public <E extends T> E receive(Class<E> clz, Predicate<E> filter) {
+    public <E extends T> E receive(Class<E> clz, Predicate<E> filter, long timeoutMs) {
         if (map.isEmpty())
-            return receiveFromQueue(clz, filter);
+            return receiveFromQueue(clz, filter, timeoutMs);
 
         E message = receiveFromMap(clz, filter);
 
-        return message != null ? message : receiveFromQueue(clz, filter);
+        return message != null ? message : receiveFromQueue(clz, filter, timeoutMs);
+    }
+
+    public <E extends T> E receive(Class<E> clz, Predicate<E> filter) {
+        return receive(clz, filter, LONG_TIMEOUT);
     }
 
     /**
@@ -65,14 +85,19 @@ public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageRece
      * This method can be slow, so it should be used with care, on actors that process a single request and that are not supposed to receive many messages.
      * Please consider using sendMessageReturn() if appropriate.
      */
-    public <K, E extends CONV> CONV receiveAndConvert(Class<E> clz, Predicate<E> filter) {
+    public <K, E extends CONV> CONV receiveAndConvert(Class<E> clz, Predicate<E> filter, long timeoutMs) {
         if (map.isEmpty())
-            return receiveFromQueueAndConvert(clz, filter);
+            return receiveFromQueueAndConvert(clz, filter, timeoutMs);
 
         CONV message = receiveFromMapAndConvert(clz, filter, converter);
 
-        return message != null ? message : receiveFromQueueAndConvert(clz, filter);
+        return message != null ? message : receiveFromQueueAndConvert(clz, filter, timeoutMs);
     }
+
+    public <K, E extends CONV> CONV receiveAndConvert(Class<E> clz, Predicate<E> filter) {
+        return receiveAndConvert(clz, filter, LONG_TIMEOUT);
+    }
+
 
     private <K, E extends K> K receiveFromMapAndConvert(Class<E> clz, Predicate<E> filter, Function<T, K> converter) {
         return map.scanAndChooseAndConvert(clz, filter, converter);
@@ -83,9 +108,20 @@ public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageRece
     }
 
     // FIXME: adds timeout
-    private <E extends T> E receiveFromQueue(Class<E> clz, Predicate<E> filter) {
+    private <E extends T> E receiveFromQueue(Class<E> clz, Predicate<E> filter, long timeoutMs) {
+        assert timeoutMs > 0;
+        long threshold = System.currentTimeMillis() + timeoutMs;
+
         while (true) {
-            T message = retrieveFromQueue();
+            long now = System.currentTimeMillis();
+
+            if (now > threshold)
+                return null; // timeout
+
+            T message = retrieveFromQueue(now, threshold - now);
+
+            if (message == null)
+                return null; // timeout
 
             if (clz.isInstance(message)) {
                 if (filter.test((E) message)) {
@@ -100,9 +136,20 @@ public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageRece
         }
     }
 
-    private <E extends CONV> CONV receiveFromQueueAndConvert(Class<E> clz, Predicate<E> filter) {
+    private <E extends CONV> CONV receiveFromQueueAndConvert(Class<E> clz, Predicate<E> filter, long timeoutMs) {
+        long threshold = System.currentTimeMillis() + timeoutMs;
+
         while (true) {
-            T message = retrieveFromQueue();
+            long now = System.currentTimeMillis();
+
+            if (now > threshold)
+                return null; // timeout
+
+            T message = retrieveFromQueue(now, threshold - now);
+
+            if (message == null)
+                return null; // timeout
+
             CONV messageConverted = converter.apply(message);
 
             if (clz.isInstance(messageConverted)) {
@@ -111,10 +158,12 @@ public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageRece
                 }
             }
 
-            if (converter != null)
+            if (converter != null) {
                 map.addToTailConverted(message, converter.apply(message).getClass());
-            else
+            }
+            else {
                 map.addToTail(message);
+            }
         }
     }
 
@@ -133,7 +182,10 @@ public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageRece
         if (map.isEmpty())
             return queue.poll(timeout, unit);
 
-        return map.removeHead();
+        if (converter != null)
+            return map.removeHeadConverted(converter);
+        else
+            return map.removeHead();
     }
 
     @Override
@@ -148,7 +200,7 @@ public class MessageBag<T, CONV> extends AbstractQueue<T> implements MessageRece
 
     @Override
     public T poll() {
-        return retrieveFromQueue(); // We want it always blocking
+        return retrieveFromQueue(System.currentTimeMillis(), LONG_TIMEOUT); // We want it always blocking
     }
 
     @Override

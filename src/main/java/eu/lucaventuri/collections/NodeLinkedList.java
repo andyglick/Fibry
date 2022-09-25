@@ -73,7 +73,7 @@ public class NodeLinkedList<T> implements Iterable<T> {
         return null;
     }
 
-    public boolean ieEmpty() {
+    public boolean isEmpty() {
         return head == null;
     }
 

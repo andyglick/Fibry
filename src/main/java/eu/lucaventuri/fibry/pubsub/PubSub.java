@@ -5,6 +5,7 @@ import eu.lucaventuri.fibry.fsm.FsmContext;
 
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Very simple Pub/Sub, where you can choose the level of parallelism.
@@ -14,6 +15,8 @@ import java.util.function.Consumer;
  * PubSub objects are independent, so you could have the same topic in two PubSub and they would behave independently.
  */
 public interface PubSub<T> {
+    static final String DEFAULT_TOPIC = "__DEF_TOPIC__";
+
     interface Subscription extends AutoCloseable {
         void cancel();
 
@@ -49,6 +52,10 @@ public interface PubSub<T> {
     }
 
     Subscription subscribe(String topic, Consumer<T> consumer, int maxSubscribers);
+
+    default <T2> Subscription subscribe(String topic, Function<T, T2> converter, Consumer<T2> consumerOfOtherType, int maxSubscribers) {
+        return subscribe(topic, t-> consumerOfOtherType.accept(converter.apply(t)), maxSubscribers);
+    }
 
     int getNumberOfActors(String topic);
 

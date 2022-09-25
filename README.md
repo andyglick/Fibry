@@ -25,14 +25,16 @@ Simplicity first, flexibility second
 - It is simple to retrieve the result of a message
 - It is possible to send messages to named actors even before they are created, potentially simplifying your logic; the messages can be discarded or processed when the actor will be available 
 - There is a fluid interface to build the actors
-- You can receive messages of your choice while processing a message  
-- Many types of actor implement the **Executor** interface, so you can "send code" to be executed in the thread/fiber of almost any actors, and use them on service that are not actor-aware
+- On some actors, you can receive messages of your choice while processing a message (Erlang style)  
+- Many types of actor implement the **Executor** interface, so you can "send code" to be executed by the thread/fiber of almost any actors, and use them on service that are not actor-aware
 - Most actors can be converted to **Reactive Flow Subscribers** (TCK tested), calling *asReactiveSubscriber()*
-- Fibry can create generators (Iterable) in a simple and effective way
+- Fibry can create **generators** (Iterables with **back-pressure**) in a simple and effective way
 - Remote actors can be **discovered** using UDP Multicast
+- It implements a way to schedule messages in the future
 - It implements several types of actor pools, for work-stealing tasks, with the possibility to assign a weight to each job 
 - It implements a very simple **Map/Reduce mechanism**, limited to the local computer.
 - It implements a very simple **Pub/Sub** mechanism, limited to the local computer.
+- It implements SyncVar and SyncMap, to notify (even remote actors) actors that a variable (or the value of a map) changed
 - It implements a simple **TCP port forwarding**, both as a Stereotype and as a small cli application: TcpForwarding
 - It implements some simple mechanisms to help to process messages in **batches**
 - It implements a mechanism to **track progress** of long-running tasks, which can be extended to support the progress of messages processed by another server
@@ -170,6 +172,7 @@ Some examples:
 - *sink()*: creates an actor that cannot process messages, but that can still be used for thread confinement, sending code to it
 - *runOnce()*: creates an actor that executes some logic in a separated thread, once.
 - *schedule()*: creates an actor that executes some logic in a separated thread, as many times as requested, as often as requested
+- *scheduler()*: creates a Scheduler that can be used to schedule messages in the future, in several ways
 - *tcpAcceptor()*: creates a master actor that will receive TCP connections, delegating the processing of each connection to a dedicated fiber. This is nice for IoI, to design a chat system or in general, if you have a proxy.
 
 Please check the **examples** package for inspiration.
@@ -221,6 +224,10 @@ A Distributed Actor System
 ===
 Fibry 2.X is a Distributed Actor System, meaning that it can use multiple machines to run your actors, and they are still able to communicate using the network. This feature is experimental at the moment.
 Fibry provides a simple, generic, support to contact (named) actors running on other machines. It is based on these principles: channels (the communication method) and serializers / deserializers (to transmit the message via network).
+
+Remote actors can be created using **newRemoteActor()**, **newRemoteActorWithReturn()** and **newRemoteActorSendOnly()**, from ActorSystem.
+FOr more details, please check the examples in the **eu.lucaventuri.examples.distributed** package.
+
 It provides some interfaces:
 - **RemoteActorChannel**: an interface to send messages to named actors running on remote machines; these actors can return a value.
 - **RemoteActorChannelSendOnly**: an interface to send messages to named actors running on remote machines; these actors cannot return any value (e.g. queues).
@@ -258,9 +265,9 @@ Generators
 ===
 Some languages like Python have the possibility to *yield* a value, meaning that the function returns an iterator / generator.
 Java does not have such a feature, but now Fibry implements several mechanisms for that, offering you a choice between simplicity and speed.
-Clearly this is a bit less elegant and more complex than having a yield keyword, but in at least it can be customized based on your needs.
+This is a bit less elegant and more complex than having a yield keyword, but at least it can be customized based on your needs.
 
-This is a basic example, but you can find more examples in the unit test. I plan to write an article about this feature, but not anytime soon.
+This is a basic example, but you can find more examples in the unit test. I plan to write an article about this feature.
  
  ```Java
 Iterable<Integer> gen = Generator.fromProducer(yielder -> {
@@ -270,12 +277,15 @@ Iterable<Integer> gen = Generator.fromProducer(yielder -> {
   }
 }, 5, true);
 ```
- 
-Stream can often substitute generators, but this example would be tricky because you don't know ina dvance the length of the stream.
-You could use a list, but then you need to keep all the elements in RAM, which is not always possible.
-You can write an Iterable, but it is qutie some code, and not always super straightforward.
+In the previous example, we get an iterator that will provide all the numbers selected, but not more than 5 will be "in fly", precomputed; this allows us to find a balance between speed and other resources (like memory, disk or CPU) that might become scarce when creating too many elements, in real world cases.
+For example, if you were to download and analyze some big files, you might want to download some of them in parallel (but not too many to not fill the hard drive) and then you might want to also process them in parallel, and generators can help you to hit the sweet spot.
+In practice, this is an implementation of a **back-pressure** mechanism. 
 
-Fibry Generators don't have these limitations, and can let you customize how many elements to keep in memory (5 in mt example); more elements usually mean better performance, but Fibry has also other ways to tune speed.
+Streams can often substitute generators, but this example would be tricky because you cannot know in advance the length of the stream.
+You could use a list, but then you need to keep all the elements in RAM, which is not always possible.
+You can write an Iterable, but it is quite some code, and not always super straightforward.
+
+Fibry Generators don't have these limitations, and can let you customize how many elements to keep in memory (5 in my example); more elements usually mean better performance, but Fibry has also other ways to tune speed.
 Please note that every generator is back by a thread / fiber, and while it can process millions of elements per second, it might still be slower than other solutions.
  
  
@@ -338,6 +348,21 @@ ps.publish("test", "HelloWorld!");
 Pub/Sub can help decoupling components, reducing latency (as tasks can be processed by actors asynchronously) and transparently adding/removing logging and monitoring, even at runtime.
 Applications using WebSockets or Queues might also benefit from Pub/Sub, as their domain is event based. 
 
+SyncVar and SyncMap
+===
+Fibry provides the class SyncVar, to notify actors that a certain variable changed value; if you need to monitor many values, you might want to consider SyncMap.
+A SyncVar can be called directly to check the value of the variable, or clients can use its PubSub object to be notified of changes.
+```java
+SyncVar<String> sv = new SyncVar<>();
+
+sv.subscribe(v -> {...});
+String str = sv.getValue();        
+```
+
+If you want to use these functionalities with remote actors, the SyncVarConsumer can help you simplify your code.
+SyncVar has a second constructor when you can provide a custom PubSub object, if the default behavior does not fit your needs.
+
+
 Transactions
 ===
 Fibry supports three types of transactions:
@@ -351,6 +376,19 @@ On the other hand, full transaction needs to be used with caution, because they 
 transactions are not initiated immediately, as we need their message to reach the actor and be processed. As it would be impossible to execute methods of the actor while blocking it,
 a convenient synchronous actor can be used inside the transaction.
 Please check the unit tests for examples on how to use these transactions.
+
+Scheduling
+===
+Fibry implements a simple Scheduler, that can be used to postpone messages or to schedule them at a fixed rate or at a fixed delay; the messages will be sent to the specified actor.
+The syntax is the same as **ScheduledExecutorService**, except that it is also possible to specify a maximum number of messages to schedule  
+
+```java
+Scheduler scheduler = new Scheduler();
+
+scheduler.schedule(actor2, "msg2", 11, TimeUnit.MILLISECONDS);
+scheduler.scheduleAtFixedRate(actor, "msg", 5, 5, TimeUnit.MILLISECONDS, maxMessages);
+scheduler.scheduleWithFixedDelay(actor3, "msg3", 4, 3, TimeUnit.MILLISECONDS);
+```
 
 Utilities
 ===
